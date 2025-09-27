@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Posture Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Load MediaPipe and jsPDF -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Clinical Posture Analysis</h1>
+        <p class="subtitle">Evidence-based postural assessment using physiotherapy standards</p>
+
+        <div class="mode-selector">
+            <div class="mode-buttons">
+                <button id="cameraMode" class="mode-btn active">Live Camera</button>
+                <button id="uploadMode" class="mode-btn">Upload Images</button>
+            </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div id="cameraSection">
+            <div class="video-container">
+                <video id="videoElement"></video>
+                <canvas id="canvasElement"></canvas>
+                <div id="countdown" class="countdown hidden"></div>
+                <div id="poseIndicator" class="pose-indicator hidden">Pose Detected</div>
+                <div id="measurementOverlay" class="measurement-overlay hidden"></div>
+            </div>
+
+            <div class="controls">
+                <button id="startBtn">Start Analysis</button>
+                <button id="captureBtn" disabled>Capture Image</button>
+                <button id="downloadBtn" disabled>Download Clinical Report</button>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="uploadSection" class="upload-section">
+            <div class="upload-container">
+                <div class="upload-box" onclick="document.getElementById('frontUpload').click()">
+                    <input type="file" id="frontUpload" accept="image/*">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>Front View</strong><br>
+                            Click to upload front-facing photo
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-box" onclick="document.getElementById('sideUpload').click()">
+                    <input type="file" id="sideUpload" accept="image/*">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>Side View</strong><br>
+                            Click to upload side profile photo
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-box" onclick="document.getElementById('backUpload').click()">
+                    <input type="file" id="backUpload" accept="image/*">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>Back View</strong><br>
+                            Click to upload back-facing photo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-indicator">
+                <div id="frontProgress" class="progress-step"></div>
+                <div id="sideProgress" class="progress-step"></div>
+                <div id="backProgress" class="progress-step"></div>
+            </div>
+
+            <div class="controls">
+                <button id="analyzeUploadsBtn" class="analyze-btn" disabled>Analyze Uploaded Images</button>
+                <button id="downloadUploadBtn" disabled>Download Clinical Report</button>
+            </div>
+        </div>
+
+        <div class="status">
+            <div id="statusText">Choose analysis mode: Live Camera or Upload Images</div>
+        </div>
+
+        <div id="capturedImages" class="captured-images"></div>
+        
+        <!-- PDF Preview Modal -->
+        <div id="pdfPreviewModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Clinical Report</h2>
+                    <button id="closeModalBtn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="edit-section">
+                        <h3>Patient Information</h3>
+                        <div class="form-group">
+                            <label for="patientName">Patient Name:</label>
+                            <input type="text" id="patientName" placeholder="Enter patient name">
+                        </div>
+                        <div class="form-group">
+                            <label for="patientAge">Age:</label>
+                            <input type="number" id="patientAge" placeholder="Enter age">
+                        </div>
+                        <div class="form-group">
+                            <label for="assessmentDate">Assessment Date:</label>
+                            <input type="date" id="assessmentDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="clinicianName">Clinician/Assessor:</label>
+                            <input type="text" id="clinicianName" placeholder="Enter clinician name">
+                        </div>
+                    </div>
+
+                    <!-- ## MODIFICATION START ## -->
+                    <div class="edit-section">
+                        <h3>Clinical Assessment Summary</h3>
+                        <div class="form-group">
+                            <label for="clinicalSummary">AI-Generated Summary:</label>
+                            <textarea id="clinicalSummary" rows="8" placeholder="Generating AI summary..."></textarea>
+                        </div>
+                    </div>
+                    <!-- ## MODIFICATION END ## -->
+                    
+                    <div class="edit-section">
+                        <h3>Exercise Protocol</h3>
+                        <div class="form-group">
+                            <label for="exerciseProtocol">AI-Generated Exercise Protocol:</label>
+                            <textarea id="exerciseProtocol" rows="8" placeholder="Generating AI exercise recommendations..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="exerciseSchedule">Recommended Schedule:</label>
+                            <textarea id="exerciseSchedule" rows="6" placeholder="Edit schedule recommendations..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="edit-section">
+                        <h3>Additional Notes</h3>
+                        <div class="form-group">
+                            <label for="additionalNotes">Clinical Notes:</label>
+                            <textarea id="additionalNotes" rows="4" placeholder="Add any additional observations or notes..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="treatmentGoals">Treatment Goals:</label>
+                            <textarea id="treatmentGoals" rows="3" placeholder="Specify treatment goals and objectives..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="followUpNotes">Follow-up Notes:</label>
+                            <textarea id="followUpNotes" rows="3" placeholder="Follow-up recommendations and timeline..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="edit-section">
+                        <h3>Report Preview</h3>
+                        <div id="reportPreview" class="report-preview">
+                            <!-- Report content will be dynamically generated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveChangesBtn" class="save-btn">Save Changes</button>
+                    <button id="downloadFinalBtn" class="download-final-btn" disabled>Download Report</button>
+                    <button id="cancelEditBtn" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript modules in order -->
+    <script src="js/app-core.js"></script>
+    <script src="js/camera-handler.js"></script>
+    <script src="js/analysis-engine.js"></script>
+    <script src="js/pdf-generator.js"></script>
+</body>
+
+</html>
