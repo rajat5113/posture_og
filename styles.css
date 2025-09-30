@@ -606,6 +606,137 @@ button:disabled {
     transform: translateY(-1px);
 }
 
+/* Calibration Section Styles */
+.calibration-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 2px solid #667eea;
+}
+
+.calibration-section h2 {
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+.calibration-info {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+.calibration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.calibration-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.calibration-item label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+.calibration-item input {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.calibration-item input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.calibration-item .help-text {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.calibration-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.calibration-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.calibration-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.calibration-btn.secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.calibration-btn.secondary:hover {
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.6);
+}
+
+.calibration-status {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.calibration-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.calibration-status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Responsive Calibration */
+@media (max-width: 768px) {
+    .calibration-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .calibration-buttons {
+        flex-direction: column;
+    }
+    
+    .calibration-btn {
+        width: 100%;
+    }
+}
+
 /* Responsive Modal */
 @media (max-width: 768px) {
     .modal-content {

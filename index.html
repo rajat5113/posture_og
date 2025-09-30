@@ -20,6 +20,45 @@
         <h1>Clinical Posture Analysis</h1>
         <p class="subtitle">Evidence-based postural assessment using physiotherapy standards</p>
 
+        <!-- Calibration Section -->
+        <div id="calibrationSection" class="calibration-section">
+            <h2>Body Measurements Calibration</h2>
+            <p class="calibration-info">Enter your actual body measurements for accurate analysis (optional - defaults will be used if left empty)</p>
+            
+            <div class="calibration-grid">
+                <div class="calibration-item">
+                    <label for="headWidth">Head Width (cm):</label>
+                    <input type="number" id="headWidth" min="10" max="25" step="0.1" placeholder="15 cm (default)">
+                    <span class="help-text">Measure ear to ear across head</span>
+                </div>
+                
+                <div class="calibration-item">
+                    <label for="shoulderWidth">Shoulder Width (cm):</label>
+                    <input type="number" id="shoulderWidth" min="30" max="60" step="0.1" placeholder="40 cm (default)">
+                    <span class="help-text">Measure shoulder to shoulder</span>
+                </div>
+                
+                <div class="calibration-item">
+                    <label for="hipWidth">Hip Width (cm):</label>
+                    <input type="number" id="hipWidth" min="25" max="55" step="0.1" placeholder="35 cm (default)">
+                    <span class="help-text">Measure widest hip point</span>
+                </div>
+                
+                <div class="calibration-item">
+                    <label for="neckLength">Neck Length (cm):</label>
+                    <input type="number" id="neckLength" min="10" max="30" step="0.1" placeholder="20 cm (default)">
+                    <span class="help-text">Measure shoulder to ear vertically</span>
+                </div>
+            </div>
+            
+            <div class="calibration-buttons">
+                <button id="saveCalibrationBtn" class="calibration-btn">Save Measurements</button>
+                <button id="useDefaultsBtn" class="calibration-btn secondary">Use Default Values</button>
+            </div>
+            
+            <div id="calibrationStatus" class="calibration-status hidden"></div>
+        </div>
+
         <div class="mode-selector">
             <div class="mode-buttons">
                 <button id="cameraMode" class="mode-btn active">Live Camera</button>
@@ -94,7 +133,7 @@
         </div>
 
         <div class="status">
-            <div id="statusText">Choose analysis mode: Live Camera or Upload Images</div>
+            <div id="statusText">Enter your body measurements above, then choose analysis mode: Live Camera or Upload Images</div>
         </div>
 
         <div id="capturedImages" class="captured-images"></div>
@@ -127,7 +166,6 @@
                         </div>
                     </div>
 
-                    <!-- ## MODIFICATION START ## -->
                     <div class="edit-section">
                         <h3>Clinical Assessment Summary</h3>
                         <div class="form-group">
@@ -135,7 +173,6 @@
                             <textarea id="clinicalSummary" rows="8" placeholder="Generating AI summary..."></textarea>
                         </div>
                     </div>
-                    <!-- ## MODIFICATION END ## -->
                     
                     <div class="edit-section">
                         <h3>Exercise Protocol</h3>
