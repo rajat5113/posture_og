@@ -1,22 +1,19 @@
-// camera-handler.js - Camera and MediaPipe Pose Detection
+// camera-handler.js - Enhanced Camera and Pose Detection
 
 const CameraHandler = {
-    // Camera and pose detection variables
     videoElement: document.getElementById('videoElement'),
     canvasElement: document.getElementById('canvasElement'),
     canvasCtx: null,
     camera: null,
     pose: null,
     currentLandmarks: null,
-
-    // UI elements
     countdown: document.getElementById('countdown'),
     poseIndicator: document.getElementById('poseIndicator'),
     measurementOverlay: document.getElementById('measurementOverlay'),
 
     init() {
         this.canvasCtx = this.canvasElement.getContext('2d');
-        console.log('Camera handler initialized');
+        console.log('Enhanced camera handler initialized');
     },
 
     async startAnalysis() {
@@ -31,7 +28,7 @@ const CameraHandler = {
             };
             Elements.capturedImagesDiv.innerHTML = '';
 
-            Elements.statusText.innerHTML = 'Initializing clinical pose detection... <div class="loading"></div>';
+            Elements.statusText.innerHTML = 'Initializing comprehensive pose detection... <div class="loading"></div>';
 
             if (!this.pose) {
                 this.initializePose();
@@ -78,13 +75,11 @@ const CameraHandler = {
     },
 
     processCapturedImage() {
-        // Create a temporary canvas for capture
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = this.canvasElement.width;
         tempCanvas.height = this.canvasElement.height;
         const tempCtx = tempCanvas.getContext('2d');
 
-        // Draw the current frame without mirroring
         tempCtx.save();
         tempCtx.scale(-1, 1);
         tempCtx.drawImage(this.canvasElement, -tempCanvas.width, 0);
@@ -96,7 +91,6 @@ const CameraHandler = {
         AppState.capturedData[phaseName] = imageData;
         AppState.capturedData[phaseName + 'Landmarks'] = JSON.parse(JSON.stringify(this.currentLandmarks));
 
-        // Display captured image
         const imageDiv = document.createElement('div');
         imageDiv.className = 'captured-image';
         imageDiv.innerHTML = `
@@ -112,7 +106,7 @@ const CameraHandler = {
             Elements.captureBtn.disabled = false;
             this.measurementOverlay.classList.add('hidden');
         } else {
-            Elements.statusText.innerHTML = '✓ Clinical analysis complete! Click "Download Clinical Report" to get your assessment.';
+            Elements.statusText.innerHTML = '✓ Comprehensive clinical analysis complete! Click "Download Clinical Report" for your detailed assessment.';
             Elements.captureBtn.disabled = true;
             Elements.downloadBtn.disabled = false;
             this.measurementOverlay.classList.add('hidden');
@@ -122,7 +116,6 @@ const CameraHandler = {
         }
     },
 
-    // Initialize MediaPipe Pose
     initializePose() {
         console.log('Initializing MediaPipe Pose...');
         try {
@@ -147,7 +140,6 @@ const CameraHandler = {
         }
     },
 
-    // Handle pose detection results
     onResults(results) {
         if (AppState.currentMode === 'camera') {
             this.canvasElement.width = this.videoElement.videoWidth;
@@ -156,10 +148,8 @@ const CameraHandler = {
             this.canvasCtx.save();
             this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
 
-            // Draw video
             this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
-            // Draw pose landmarks
             if (results.poseLandmarks) {
                 drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
                     { color: '#00FF00', lineWidth: 3 });
@@ -169,7 +159,6 @@ const CameraHandler = {
                 this.currentLandmarks = results.poseLandmarks;
                 this.poseIndicator.classList.remove('hidden');
 
-                // Show real-time measurements
                 if (AppState.currentPhase < AppState.phases.length) {
                     this.showRealTimeMeasurements(results.poseLandmarks);
                 }
@@ -181,39 +170,53 @@ const CameraHandler = {
 
             this.canvasCtx.restore();
         } else {
-            // For upload mode, just store the landmarks
             if (results.poseLandmarks) {
                 this.currentLandmarks = results.poseLandmarks;
             }
         }
     },
 
-    // Show real-time measurements overlay
     showRealTimeMeasurements(landmarks) {
         let measurements = '';
+        const currentView = AppState.phases[AppState.currentPhase].name;
 
-        if (AppState.phases[AppState.currentPhase].name === 'front' || 
-            AppState.phases[AppState.currentPhase].name === 'back') {
-            
+        if (currentView === 'front') {
             if (typeof AnalysisEngine !== 'undefined') {
                 const frontAnalysis = AnalysisEngine.analyzeFrontView(landmarks);
                 measurements = `
-                    <div>${AppState.phases[AppState.currentPhase].name.toUpperCase()} VIEW ANALYSIS:</div>
-                    <div>Neck deviation: ${frontAnalysis.measurements.neckDeviation}°</div>
-                    <div>Shoulder height diff: ${frontAnalysis.measurements.shoulderHeightDiff}°</div>
-                    <div>Elbow height diff: ${frontAnalysis.measurements.elbowHeightDiff}°</div>
-                    <div>Hip height diff: ${frontAnalysis.measurements.hipHeightDiff}°</div>
-                    <div>Knee alignment: L:${frontAnalysis.measurements.leftKneeAngle}° R:${frontAnalysis.measurements.rightKneeAngle}°</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">FRONT VIEW - REAL-TIME MEASUREMENTS:</div>
+                    <div>Ear Pinnae Level: ${frontAnalysis.measurements.earPinnaeLevel}° (${frontAnalysis.measurements.earPinnaeLevelCm} cm)</div>
+                    <div>Neck Level: ${frontAnalysis.measurements.neckLevel}° (${frontAnalysis.measurements.neckLevelCm} cm)</div>
+                    <div>Shoulder Level: ${frontAnalysis.measurements.shoulderLevel}° (${frontAnalysis.measurements.shoulderLevelCm} cm)</div>
+                    <div>Elbow Level: ${frontAnalysis.measurements.elbowLevel}° (${frontAnalysis.measurements.elbowLevelCm} cm)</div>
+                    <div>Pelvic Obliquity: ${frontAnalysis.measurements.pelvicObliquity}° (${frontAnalysis.measurements.pelvicObliquityCm} cm)</div>
+                    <div>Knee Level: ${frontAnalysis.measurements.kneeLevel}° (${frontAnalysis.measurements.kneeLevelCm} cm)</div>
+                    <div>Knee Alignment: L:${frontAnalysis.measurements.leftKneeAlignment}° R:${frontAnalysis.measurements.rightKneeAlignment}°</div>
                 `;
             }
-        } else if (AppState.phases[AppState.currentPhase].name === 'side') {
+        } else if (currentView === 'side') {
             if (typeof AnalysisEngine !== 'undefined') {
                 const sideAnalysis = AnalysisEngine.analyzeSideView(landmarks);
                 measurements = `
-                    <div>SIDE VIEW ANALYSIS:</div>
-                    <div>Neck forward: ${sideAnalysis.measurements.neckForward}°</div>
-                    <div>Back bend: ${sideAnalysis.measurements.backBend}°</div>
-                    <div>Knee bend: ${sideAnalysis.measurements.kneeBend}°</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">SIDE VIEW - REAL-TIME MEASUREMENTS:</div>
+                    <div>Forward Neck: ${sideAnalysis.measurements.forwardNeck}° (${sideAnalysis.measurements.forwardNeckCm} cm)</div>
+                    <div>Chin Forward: ${sideAnalysis.measurements.chinForward}° (${sideAnalysis.measurements.chinForwardCm} cm)</div>
+                    <div>Shoulder Position: ${sideAnalysis.measurements.shoulderPosition}° ${sideAnalysis.measurements.shoulderPostureType || ''}</div>
+                    <div>Thoracic Curvature: ${sideAnalysis.measurements.thoracicCurvature}° (${sideAnalysis.measurements.thoracicCurvatureType || 'Normal'})</div>
+                    <div>Lumbar Curvature: ${sideAnalysis.measurements.lumbarCurvature}° (${sideAnalysis.measurements.lumbarCurvatureType || 'Normal'})</div>
+                    <div>Knee Position: ${sideAnalysis.measurements.kneePosition}° ${sideAnalysis.measurements.kneePositionType || ''}</div>
+                `;
+            }
+        } else if (currentView === 'back') {
+            if (typeof AnalysisEngine !== 'undefined') {
+                const backAnalysis = AnalysisEngine.analyzeBackView(landmarks);
+                measurements = `
+                    <div style="font-weight: bold; margin-bottom: 5px;">BACK VIEW - REAL-TIME MEASUREMENTS:</div>
+                    <div>Elbow Level: ${backAnalysis.measurements.elbowLevel}° (${backAnalysis.measurements.elbowLevelCm} cm)</div>
+                    <div>Scapular Level: ${backAnalysis.measurements.scapularLevel}° (${backAnalysis.measurements.scapularLevelCm} cm)</div>
+                    <div>PSIS Level: ${backAnalysis.measurements.psisLevel}° (${backAnalysis.measurements.psisLevelCm} cm)</div>
+                    <div>Gluteal Fold Asymmetry: ${backAnalysis.measurements.glutealFoldAsymmetry}%</div>
+                    <div>Popliteal Line: ${backAnalysis.measurements.poplitealLine}° (${backAnalysis.measurements.poplitealLineCm} cm)</div>
                 `;
             }
         }
@@ -222,7 +225,6 @@ const CameraHandler = {
         this.measurementOverlay.classList.remove('hidden');
     },
 
-    // Start camera
     async startCamera() {
         console.log('Starting camera...');
         try {
@@ -257,25 +259,21 @@ const CameraHandler = {
     async processUploadedImage(img, view) {
         if (!this.pose) {
             this.initializePose();
-            // Wait for pose to initialize
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        // Create a temporary canvas for pose processing
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = img.width;
         tempCanvas.height = img.height;
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.drawImage(img, 0, 0);
 
-        // Process with MediaPipe
         try {
             await this.pose.send({ image: tempCanvas });
-            // The onResults callback will handle storing landmarks
             setTimeout(() => {
                 if (this.currentLandmarks) {
                     AppState.uploadedData[view + 'Landmarks'] = JSON.parse(JSON.stringify(this.currentLandmarks));
-                    Elements.statusText.innerHTML = `${view.charAt(0).toUpperCase() + view.slice(1)} view processed successfully`;
+                    Elements.statusText.innerHTML = `${view.charAt(0).toUpperCase() + view.slice(1)} view processed - pose detected successfully`;
                 }
             }, 500);
         } catch (error) {
@@ -285,7 +283,6 @@ const CameraHandler = {
     }
 };
 
-// Initialize camera handler when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     CameraHandler.init();
 });

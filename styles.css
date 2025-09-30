@@ -318,7 +318,38 @@ button:disabled {
 }
 
 .measurement-overlay {
-    display: none;
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    z-index: 5;
+    max-height: 380px;
+    overflow-y: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.measurement-overlay div {
+    margin: 3px 0;
+}
+
+.measurement-overlay::-webkit-scrollbar {
+    width: 6px;
+}
+
+.measurement-overlay::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.measurement-overlay::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.8);
+    border-radius: 3px;
 }
 
 .analyze-btn {
@@ -606,5 +637,11 @@ button:disabled {
     .upload-box {
         width: 100%;
         max-width: 300px;
+    }
+    
+    .measurement-overlay {
+        font-size: 11px;
+        padding: 10px;
+        max-height: 320px;
     }
 }
