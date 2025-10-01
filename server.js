@@ -53,7 +53,8 @@ app.post('/api/generate-summary', async (req, res) => {
         
         const allMeasurements = { 
             ...analysisData.front?.measurements, 
-            ...analysisData.side?.measurements, 
+            ...analysisData.sideLeft?.measurements, 
+            ...analysisData.sideRight?.measurements,
             ...analysisData.back?.measurements 
         };
         
@@ -64,7 +65,8 @@ app.post('/api/generate-summary', async (req, res) => {
         dataString += "\nIdentified Issues:\n";
         const allIssues = [
             ...(analysisData.front?.issues || []), 
-            ...(analysisData.side?.issues || []), 
+            ...(analysisData.sideLeft?.issues || []), 
+            ...(analysisData.sideRight?.issues || []),
             ...(analysisData.back?.issues || [])
         ];
         const uniqueIssues = [...new Set(allIssues.filter(issue => !issue.includes('✓ Normal')))];
@@ -78,17 +80,17 @@ app.post('/api/generate-summary', async (req, res) => {
         }
 
         // Create the prompt for ChatGPT-4 Mini
-        const prompt = `You are a clinical physiotherapy assistant. Based on the following posture analysis data, provide a professional clinical summary in exactly 200-250 words, followed by exercise recommendations in exactly 200-250 words.
+        const prompt = `You are a clinical physiotherapy assistant. Based on the following posture analysis data from multiple views (front, left side, right side, and back), provide a professional clinical summary in exactly 200-250 words, followed by exercise recommendations in exactly 200-250 words.
 
 Data:
 ${dataString}
 
 Please respond in this exact format without any bold or italic text:
-SUMMARY: [ 200-250 words about the clinical findings and their implications]
+SUMMARY: [200-250 words about the clinical findings, bilateral comparisons, and their implications]
 
 EXERCISES: [200-250 words of specific exercise recommendations with repetitions/duration]
 
-Keep the language professional. Focus on actionable insights and evidence-based recommendations.`;
+Keep the language professional. Focus on actionable insights and evidence-based recommendations. If there are differences between left and right side views, highlight these asymmetries.`;
 
         // Call OpenAI API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {

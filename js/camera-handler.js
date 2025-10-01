@@ -23,8 +23,8 @@ const CameraHandler = {
             Elements.captureBtn.disabled = false;
             AppState.currentPhase = 0;
             AppState.capturedData = { 
-                front: null, side: null, back: null, 
-                frontLandmarks: null, sideLandmarks: null, backLandmarks: null 
+                front: null, sideLeft: null, sideRight: null, back: null, 
+                frontLandmarks: null, sideLeftLandmarks: null, sideRightLandmarks: null, backLandmarks: null 
             };
             Elements.capturedImagesDiv.innerHTML = '';
 
@@ -91,10 +91,14 @@ const CameraHandler = {
         AppState.capturedData[phaseName] = imageData;
         AppState.capturedData[phaseName + 'Landmarks'] = JSON.parse(JSON.stringify(this.currentLandmarks));
 
+        let viewLabel = phaseName.charAt(0).toUpperCase() + phaseName.slice(1);
+        if (phaseName === 'sideLeft') viewLabel = 'Side Left';
+        if (phaseName === 'sideRight') viewLabel = 'Side Right';
+
         const imageDiv = document.createElement('div');
         imageDiv.className = 'captured-image';
         imageDiv.innerHTML = `
-            <h3>${phaseName.charAt(0).toUpperCase() + phaseName.slice(1)} View</h3>
+            <h3>${viewLabel} View</h3>
             <img src="${imageData}" alt="${phaseName} view">
         `;
         Elements.capturedImagesDiv.appendChild(imageDiv);
@@ -106,7 +110,7 @@ const CameraHandler = {
             Elements.captureBtn.disabled = false;
             this.measurementOverlay.classList.add('hidden');
         } else {
-            Elements.statusText.innerHTML = '✓ Comprehensive clinical analysis complete! Click "Download Clinical Report" for your detailed assessment.';
+            Elements.statusText.innerHTML = 'Comprehensive clinical analysis complete! Click "Download Clinical Report" for your detailed assessment.';
             Elements.captureBtn.disabled = true;
             Elements.downloadBtn.disabled = false;
             this.measurementOverlay.classList.add('hidden');
@@ -194,11 +198,12 @@ const CameraHandler = {
                     <div>Knee Alignment: L:${frontAnalysis.measurements.leftKneeAlignment}° R:${frontAnalysis.measurements.rightKneeAlignment}°</div>
                 `;
             }
-        } else if (currentView === 'side') {
+        } else if (currentView === 'sideLeft' || currentView === 'sideRight') {
             if (typeof AnalysisEngine !== 'undefined') {
                 const sideAnalysis = AnalysisEngine.analyzeSideView(landmarks);
+                const viewLabel = currentView === 'sideLeft' ? 'SIDE LEFT' : 'SIDE RIGHT';
                 measurements = `
-                    <div style="font-weight: bold; margin-bottom: 5px;">SIDE VIEW - REAL-TIME MEASUREMENTS:</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">${viewLabel} VIEW - REAL-TIME MEASUREMENTS:</div>
                     <div>Forward Neck: ${sideAnalysis.measurements.forwardNeck}° (${sideAnalysis.measurements.forwardNeckCm} cm)</div>
                     <div>Chin Forward: ${sideAnalysis.measurements.chinForward}° (${sideAnalysis.measurements.chinForwardCm} cm)</div>
                     <div>Shoulder Position: ${sideAnalysis.measurements.shoulderPosition}° ${sideAnalysis.measurements.shoulderPostureType || ''}</div>
@@ -273,7 +278,10 @@ const CameraHandler = {
             setTimeout(() => {
                 if (this.currentLandmarks) {
                     AppState.uploadedData[view + 'Landmarks'] = JSON.parse(JSON.stringify(this.currentLandmarks));
-                    Elements.statusText.innerHTML = `${view.charAt(0).toUpperCase() + view.slice(1)} view processed - pose detected successfully`;
+                    let viewLabel = view.charAt(0).toUpperCase() + view.slice(1);
+                    if (view === 'sideLeft') viewLabel = 'Side Left';
+                    if (view === 'sideRight') viewLabel = 'Side Right';
+                    Elements.statusText.innerHTML = `${viewLabel} view processed - pose detected successfully`;
                 }
             }, 500);
         } catch (error) {

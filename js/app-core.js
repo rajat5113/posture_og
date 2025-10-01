@@ -5,17 +5,18 @@ const AppState = {
     currentMode: 'camera',
     currentPhase: 0,
     capturedData: {
-        front: null, side: null, back: null,
-        frontLandmarks: null, sideLandmarks: null, backLandmarks: null
+        front: null, sideLeft: null, sideRight: null, back: null,
+        frontLandmarks: null, sideLeftLandmarks: null, sideRightLandmarks: null, backLandmarks: null
     },
     uploadedData: {
-        front: null, side: null, back: null,
-        frontLandmarks: null, sideLandmarks: null, backLandmarks: null
+        front: null, sideLeft: null, sideRight: null, back: null,
+        frontLandmarks: null, sideLeftLandmarks: null, sideRightLandmarks: null, backLandmarks: null
     },
     postureAnalysis: null,
     phases: [
         { name: 'front', instruction: 'Stand facing the camera with arms relaxed at your sides' },
-        { name: 'side', instruction: 'Turn to your side (90 degrees) with arms relaxed' },
+        { name: 'sideLeft', instruction: 'Turn to your LEFT side (90 degrees) with arms relaxed' },
+        { name: 'sideRight', instruction: 'Turn to your RIGHT side (90 degrees) with arms relaxed' },
         { name: 'back', instruction: 'Turn your back to the camera with arms relaxed at your sides' }
     ]
 };
@@ -35,7 +36,8 @@ const Elements = {
     
     // Upload controls
     frontUpload: document.getElementById('frontUpload'),
-    sideUpload: document.getElementById('sideUpload'),
+    sideLeftUpload: document.getElementById('sideLeftUpload'),
+    sideRightUpload: document.getElementById('sideRightUpload'),
     backUpload: document.getElementById('backUpload'),
     analyzeUploadsBtn: document.getElementById('analyzeUploadsBtn'),
     downloadUploadBtn: document.getElementById('downloadUploadBtn'),
@@ -82,7 +84,8 @@ function initializeEventListeners() {
 
     // Upload handlers
     Elements.frontUpload?.addEventListener('change', (e) => handleImageUpload(e, 'front'));
-    Elements.sideUpload?.addEventListener('change', (e) => handleImageUpload(e, 'side'));
+    Elements.sideLeftUpload?.addEventListener('change', (e) => handleImageUpload(e, 'sideLeft'));
+    Elements.sideRightUpload?.addEventListener('change', (e) => handleImageUpload(e, 'sideRight'));
     Elements.backUpload?.addEventListener('change', (e) => handleImageUpload(e, 'back'));
 
     // Analyze uploads button
@@ -132,18 +135,18 @@ function switchToUpload() {
     Elements.cameraModeBtn.classList.remove('active');
     Elements.cameraSection.style.display = 'none';
     Elements.uploadSection.style.display = 'block';
-    Elements.statusText.innerHTML = 'Upload your front, side, and back view photos for analysis';
+    Elements.statusText.innerHTML = 'Upload your front, left side, right side, and back view photos for analysis';
     resetAnalysis();
 }
 
 function resetAnalysis() {
     AppState.capturedData = { 
-        front: null, side: null, back: null, 
-        frontLandmarks: null, sideLandmarks: null, backLandmarks: null 
+        front: null, sideLeft: null, sideRight: null, back: null, 
+        frontLandmarks: null, sideLeftLandmarks: null, sideRightLandmarks: null, backLandmarks: null 
     };
     AppState.uploadedData = { 
-        front: null, side: null, back: null, 
-        frontLandmarks: null, sideLandmarks: null, backLandmarks: null 
+        front: null, sideLeft: null, sideRight: null, back: null, 
+        frontLandmarks: null, sideLeftLandmarks: null, sideRightLandmarks: null, backLandmarks: null 
     };
     AppState.postureAnalysis = null;
     Elements.capturedImagesDiv.innerHTML = '';
@@ -175,9 +178,14 @@ function handleImageUpload(event, view) {
             // Update UI
             const uploadBox = event.target.parentElement;
             uploadBox.classList.add('has-image');
+            
+            let viewLabel = view.charAt(0).toUpperCase() + view.slice(1);
+            if (view === 'sideLeft') viewLabel = 'Side View (Left)';
+            if (view === 'sideRight') viewLabel = 'Side View (Right)';
+            
             uploadBox.innerHTML = `
                 <img src="${AppState.uploadedData[view]}" alt="${view} view" class="upload-preview">
-                <div class="upload-text"><strong>${view.charAt(0).toUpperCase() + view.slice(1)} View</strong><br>Click to change</div>
+                <div class="upload-text"><strong>${viewLabel}</strong><br>Click to change</div>
             `;
             uploadBox.onclick = () => event.target.click();
             
@@ -201,12 +209,16 @@ function analyzeUploads() {
     
     // Display uploaded images
     Elements.capturedImagesDiv.innerHTML = '';
-    ['front', 'side', 'back'].forEach(view => {
+    ['front', 'sideLeft', 'sideRight', 'back'].forEach(view => {
         if (AppState.uploadedData[view]) {
+            let viewLabel = view.charAt(0).toUpperCase() + view.slice(1);
+            if (view === 'sideLeft') viewLabel = 'Side Left';
+            if (view === 'sideRight') viewLabel = 'Side Right';
+            
             const imageDiv = document.createElement('div');
             imageDiv.className = 'captured-image';
             imageDiv.innerHTML = `
-                <h3>${view.charAt(0).toUpperCase() + view.slice(1)} View</h3>
+                <h3>${viewLabel} View</h3>
                 <img src="${AppState.uploadedData[view]}" alt="${view} view">
             `;
             Elements.capturedImagesDiv.appendChild(imageDiv);
@@ -218,23 +230,28 @@ function analyzeUploads() {
         if (typeof AnalysisEngine !== 'undefined') {
             AnalysisEngine.analyzeUploadedPosture();
         }
-        Elements.statusText.innerHTML = '✓ Analysis complete! Click "Download Clinical Report" to get your assessment.';
+        Elements.statusText.innerHTML = 'Analysis complete! Click "Download Clinical Report" to get your assessment.';
         Elements.downloadUploadBtn.disabled = false;
     }, 2000);
 }
 
 function updateProgressIndicator() {
     const frontProgress = document.getElementById('frontProgress');
-    const sideProgress = document.getElementById('sideProgress');
+    const sideLeftProgress = document.getElementById('sideLeftProgress');
+    const sideRightProgress = document.getElementById('sideRightProgress');
     const backProgress = document.getElementById('backProgress');
 
     if (frontProgress) frontProgress.className = AppState.uploadedData.front ? 'progress-step completed' : 'progress-step';
-    if (sideProgress) sideProgress.className = AppState.uploadedData.side ? 'progress-step completed' : 'progress-step';
+    if (sideLeftProgress) sideLeftProgress.className = AppState.uploadedData.sideLeft ? 'progress-step completed' : 'progress-step';
+    if (sideRightProgress) sideRightProgress.className = AppState.uploadedData.sideRight ? 'progress-step completed' : 'progress-step';
     if (backProgress) backProgress.className = AppState.uploadedData.back ? 'progress-step completed' : 'progress-step';
 }
 
 function checkUploadCompletion() {
-    const hasAllImages = AppState.uploadedData.front && AppState.uploadedData.side && AppState.uploadedData.back;
+    const hasAllImages = AppState.uploadedData.front && 
+                        AppState.uploadedData.sideLeft && 
+                        AppState.uploadedData.sideRight && 
+                        AppState.uploadedData.back;
     if (Elements.analyzeUploadsBtn) {
         Elements.analyzeUploadsBtn.disabled = !hasAllImages;
     }

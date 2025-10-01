@@ -97,13 +97,24 @@
                     </div>
                 </div>
 
-                <div class="upload-box" onclick="document.getElementById('sideUpload').click()">
-                    <input type="file" id="sideUpload" accept="image/*">
+                <div class="upload-box" onclick="document.getElementById('sideLeftUpload').click()">
+                    <input type="file" id="sideLeftUpload" accept="image/*">
                     <div class="upload-content">
                         <div class="upload-icon">📷</div>
                         <div class="upload-text">
-                            <strong>Side View</strong><br>
-                            Click to upload side profile photo
+                            <strong>Side View (Left)</strong><br>
+                            Click to upload left side profile photo
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-box" onclick="document.getElementById('sideRightUpload').click()">
+                    <input type="file" id="sideRightUpload" accept="image/*">
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>Side View (Right)</strong><br>
+                            Click to upload right side profile photo
                         </div>
                     </div>
                 </div>
@@ -122,7 +133,8 @@
 
             <div class="progress-indicator">
                 <div id="frontProgress" class="progress-step"></div>
-                <div id="sideProgress" class="progress-step"></div>
+                <div id="sideLeftProgress" class="progress-step"></div>
+                <div id="sideRightProgress" class="progress-step"></div>
                 <div id="backProgress" class="progress-step"></div>
             </div>
 
@@ -224,5 +236,4 @@
     <script src="js/analysis-engine.js"></script>
     <script src="js/pdf-generator.js"></script>
 </body>
-
 </html>
