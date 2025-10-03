@@ -448,7 +448,7 @@ const PDFGenerator = {
                 let text = `• ${def.type}: `;
                 
                 if (def.elevated && def.depressed) {
-                    text += `${def.elevated} side ELEVATED by ${def.distance}cm (${def.angle}°), ${def.depressed} side DEPRESSED`;
+                    text += `${def.elevated} side higher by ${def.distance}cm (${def.angle}°), ${def.depressed} side lower`;
                 } else if (def.direction) {
                     text += `${def.direction} deviation`;
                     if (def.distance) text += ` by ${def.distance}cm`;
